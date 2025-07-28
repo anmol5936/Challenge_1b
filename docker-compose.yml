@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  pdf-analysis:
+    build: .
+    container_name: pdf-analysis-system
+    volumes:
+      # Mount output directory to persist results
+      - ./output:/app/output
+      # Optional: Mount additional documents
+      - ./documents:/app/documents:ro
+    environment:
+      - PYTHONPATH=/app/src
+      - PYTHONUNBUFFERED=1
+    # Default: run all collections
+    command: python run_challenge.py
+    
+  # Service to run specific collection
+  pdf-analysis-collection1:
+    build: .
+    container_name: pdf-analysis-collection1
+    volumes:
+      - ./output:/app/output
+    environment:
+      - PYTHONPATH=/app/src
+      - PYTHONUNBUFFERED=1
+    command: python run_challenge.py 1
+    profiles: ["collection"]
+    
+  pdf-analysis-collection2:
+    build: .
+    container_name: pdf-analysis-collection2
+    volumes:
+      - ./output:/app/output
+    environment:
+      - PYTHONPATH=/app/src
+      - PYTHONUNBUFFERED=1
+    command: python run_challenge.py 2
+    profiles: ["collection"]
+    
+  pdf-analysis-collection3:
+    build: .
+    container_name: pdf-analysis-collection3
+    volumes:
+      - ./output:/app/output
+    environment:
+      - PYTHONPATH=/app/src
+      - PYTHONUNBUFFERED=1
+    command: python run_challenge.py 3
+    profiles: ["collection"]
+    
+  # Service to run compliance check
+  pdf-analysis-compliance:
+    build: .
+    container_name: pdf-analysis-compliance
+    volumes:
+      - ./output:/app/output
+    environment:
+      - PYTHONPATH=/app/src
+      - PYTHONUNBUFFERED=1
+    command: python analyze_compliance.py
+    profiles: ["test"]
+    
+  # Service to verify structure
+  pdf-analysis-verify:
+    build: .
+    container_name: pdf-analysis-verify
+    volumes:
+      - ./output:/app/output
+    environment:
+      - PYTHONPATH=/app/src
+      - PYTHONUNBUFFERED=1
+    command: python verify_exact_structure.py
+    profiles: ["test"]

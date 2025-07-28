@@ -1,6 +1,15 @@
 # Multi-Collection PDF Analysis System
 
-A sophisticated document analysis system that processes PDF collections and extracts persona-relevant content with intelligent section ranking and subsection analysis.
+A sophisticated command-line PDF analysis system designed for Challenge 1b that extracts and prioritizes the most relevant sections from PDF collections based on specific personas and their job-to-be-done tasks. The system operates under strict performance constraints (≤60 seconds processing time, ≤1GB memory usage, CPU-only) while delivering high-quality, ranked content analysis.
+
+## 🎯 Challenge 1b Results
+
+**Structure Compliance: 100% (33/33 points)**
+- ✅ Collection 1 (Travel): 12 sections, 14 subsections (0.39s, 629MB)
+- ✅ Collection 2 (HR/Acrobat): 15 sections, 15 subsections (3.85s, 749MB)  
+- ✅ Collection 3 (Culinary): 9 sections, 8 subsections (1.41s, 750MB)
+
+All outputs match the expected JSON structure exactly.
 
 ## Features
 
@@ -13,29 +22,66 @@ A sophisticated document analysis system that processes PDF collections and extr
 
 ## Quick Start
 
-### Using Python
+### Installation and Usage
 
-1. Install dependencies:
+1. Install Python dependencies:
 ```bash
 pip install -r requirements.txt
-python -m spacy download en_core_web_sm
 ```
 
-2. Run the analysis:
+2. Run Challenge 1b collections:
 ```bash
-python run_analysis.py [input_json_file] [documents_path]
+# Run specific collection
+python run_challenge.py 1  # Collection 1 (Travel Planning)
+python run_challenge.py 2  # Collection 2 (HR/Acrobat Forms)  
+python run_challenge.py 3  # Collection 3 (Menu Planning)
+
+# Run all collections
+python run_challenge.py
+```
+
+3. Analyze compliance with expected outputs:
+```bash
+python analyze_compliance.py
+```
+
+4. Test individual components:
+```bash
+python test_sample.py
 ```
 
 ### Using Docker
 
-1. Build the container:
+1. **Quick Setup** (automated):
 ```bash
-docker build -t pdf-analyzer .
+python docker_setup.py
 ```
 
-2. Run analysis:
+2. **Manual Setup**:
 ```bash
-docker run -v $(pwd)/data:/app/data -v $(pwd)/output:/app/output pdf-analyzer python src/main.py /app/data/input.json /app/data/
+# Build image
+docker build -t pdf-analysis-system .
+
+# Run all collections
+docker run --rm pdf-analysis-system
+
+# Run specific collection
+docker run --rm pdf-analysis-system python run_challenge.py 1
+
+# Run with output volume
+docker run --rm -v $(pwd)/output:/app/output pdf-analysis-system
+```
+
+3. **Using Docker Compose**:
+```bash
+# Run all collections
+docker-compose up
+
+# Run specific collection
+docker-compose --profile collection up pdf-analysis-collection1
+
+# Run compliance check
+docker-compose --profile test up pdf-analysis-compliance
 ```
 
 ## Input Format

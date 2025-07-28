@@ -11,11 +11,10 @@ class OutputGenerator:
         """Generate metadata section for output"""
         metadata = {
             "input_documents": [
-                {"filename": doc["filename"], "title": doc["title"]} 
-                for doc in input_data.get("documents", [])
+                doc["filename"] for doc in input_data.get("documents", [])
             ],
-            "persona": input_data.get("persona", {}),
-            "job_to_be_done": input_data.get("job_to_be_done", {}),
+            "persona": input_data.get("persona", {}).get("role", ""),
+            "job_to_be_done": input_data.get("job_to_be_done", {}).get("task", ""),
             "processing_timestamp": timestamp
         }
         return metadata

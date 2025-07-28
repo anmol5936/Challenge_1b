@@ -1,0 +1,73 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node.js (if present)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Output files
+output/
+*.log
+analysis_output.json
+
+# Test files (keep only essential ones)
+barcelona_guide.pdf
+barcelona_guide.txt
+barcelona_restaurants.pdf
+hr_forms_guide.pdf
+hr_input.json
+multi_doc_input.json
+sample_input.json
+
+# Documentation (except essential)
+FINAL_SUMMARY.md
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore

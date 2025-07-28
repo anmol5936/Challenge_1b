@@ -1,0 +1,19 @@
+{
+  "challenge_info": {
+    "challenge_id": "round_1b_test",
+    "test_case_name": "travel_planning_test",
+    "description": "Test case for travel planning scenario with group of college friends"
+  },
+  "documents": [
+    {
+      "filename": "barcelona_guide.pdf",
+      "title": "Barcelona Travel Guide"
+    }
+  ],
+  "persona": {
+    "role": "Travel planning specialist helping a group of 10 college friends plan their 4-day trip"
+  },
+  "job_to_be_done": {
+    "task": "Plan a comprehensive 4-day itinerary for a group of 10 college friends, including accommodations, activities, and dining options that are budget-friendly and suitable for young adults"
+  }
+}

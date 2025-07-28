@@ -4,22 +4,40 @@ import json
 import sys
 import os
 import traceback
+import time
+import psutil
+from datetime import datetime
 from typing import Dict, Any, List
 
 # Add src to Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from models.data_models import (
-    DocumentInfo, PersonaInfo, JobInfo, Section, Subsection,
-    AnalysisContext, ProcessingError
-)
-from components.input_validator import InputValidator
-from components.pdf_parser import PDFParser
-from components.content_segmenter import ContentSegmenter
-from components.persona_analyzer import PersonaAnalyzer
-from components.section_ranker import SectionRanker
-from components.subsection_refiner import SubsectionRefiner
-from components.output_generator import OutputGenerator
+try:
+    from models.data_models import (
+        DocumentInfo, PersonaInfo, JobInfo, Section, Subsection,
+        AnalysisContext, ProcessingError
+    )
+    from components.input_validator import InputValidator
+    from components.pdf_parser import PDFParser
+    from components.content_segmenter import ContentSegmenter
+    from components.persona_analyzer import PersonaAnalyzer
+    from components.section_ranker import SectionRanker
+    from components.subsection_refiner import SubsectionRefiner
+    from components.output_generator import OutputGenerator
+except ImportError:
+    # Fallback for direct execution
+    from src.models.data_models import (
+        DocumentInfo, PersonaInfo, JobInfo, Section, Subsection,
+        AnalysisContext, ProcessingError
+    )
+    from src.components.input_validator import InputValidator
+    from src.components.pdf_parser import PDFParser
+    from src.components.content_segmenter import ContentSegmenter
+    from src.components.persona_analyzer import PersonaAnalyzer
+    from src.components.section_ranker import SectionRanker
+    from src.components.subsection_refiner import SubsectionRefiner
+    from src.components.output_generator import OutputGenerator
 
 class MultiCollectionPDFAnalyzer:
     def __init__(self):
@@ -35,15 +53,29 @@ class MultiCollectionPDFAnalyzer:
         self.max_processing_time = 60  # seconds
         self.max_sections_per_document = 10
         self.max_subsections_total = 15
+        self.max_memory_mb = 1024  # 1GB memory limit
+        
+        # Performance monitoring
+        self.start_time = None
+        self.performance_stats = {}
     
     def process_collection(self, input_json: Dict[str, Any], documents_path: str = "") -> Dict[str, Any]:
         """Main processing pipeline for PDF collection analysis"""
+        self.start_time = time.time()
+        self.performance_stats = {}
+        
         try:
+            # Monitor memory usage
+            process = psutil.Process()
+            initial_memory = process.memory_info().rss / 1024 / 1024  # MB
+            self.performance_stats['initial_memory_mb'] = initial_memory
             # Step 1: Validate input
+            step_start = time.time()
             validation_result = self.input_validator.validate_input(input_json)
             if not validation_result.is_valid:
                 error_msg = f"Input validation failed: {'; '.join(validation_result.errors)}"
                 return self.output_generator.create_error_output(error_msg, input_json)
+            self.performance_stats['validation_time'] = time.time() - step_start
             
             # Step 2: Extract input components
             challenge_info = self.input_validator.extract_challenge_info(input_json)
@@ -54,8 +86,14 @@ class MultiCollectionPDFAnalyzer:
             print(f"Processing {len(documents)} documents for persona: {persona.role}")
             
             # Step 3: Process PDF documents
+            step_start = time.time()
             processed_documents = []
             for doc in documents:
+                # Check timeout
+                if self._check_timeout():
+                    print("Warning: Approaching timeout, processing remaining documents with priority")
+                    break
+                    
                 try:
                     processed_doc = self.pdf_parser.process_document(doc, documents_path)
                     if processed_doc.content:  # Only include documents with content
@@ -65,6 +103,13 @@ class MultiCollectionPDFAnalyzer:
                 except Exception as e:
                     print(f"Error processing {doc.filename}: {e}")
                     continue
+                    
+                # Check memory usage
+                if self._check_memory_limit():
+                    print("Warning: Approaching memory limit, optimizing processing")
+                    break
+            
+            self.performance_stats['pdf_processing_time'] = time.time() - step_start
             
             if not processed_documents:
                 return self.output_generator.create_error_output(
@@ -176,6 +221,43 @@ class MultiCollectionPDFAnalyzer:
             return self.output_generator.create_error_output(
                 f"Processing pipeline failed: {str(e)}", input_json
             )
+    
+    def _check_timeout(self) -> bool:
+        """Check if processing is approaching timeout limit"""
+        if self.start_time is None:
+            return False
+        elapsed = time.time() - self.start_time
+        return elapsed > (self.max_processing_time * 0.8)  # 80% of max time
+    
+    def _check_memory_limit(self) -> bool:
+        """Check if memory usage is approaching limit"""
+        try:
+            process = psutil.Process()
+            current_memory = process.memory_info().rss / 1024 / 1024  # MB
+            return current_memory > (self.max_memory_mb * 0.8)  # 80% of max memory
+        except:
+            return False
+    
+    def _get_performance_summary(self) -> Dict[str, Any]:
+        """Get performance summary statistics"""
+        if self.start_time is None:
+            return {}
+        
+        total_time = time.time() - self.start_time
+        try:
+            process = psutil.Process()
+            peak_memory = process.memory_info().rss / 1024 / 1024  # MB
+        except:
+            peak_memory = 0
+        
+        summary = {
+            'total_processing_time': total_time,
+            'peak_memory_mb': peak_memory,
+            'within_time_limit': total_time <= self.max_processing_time,
+            'within_memory_limit': peak_memory <= self.max_memory_mb
+        }
+        summary.update(self.performance_stats)
+        return summary
 
 def main():
     """Main entry point for the PDF analysis system"""

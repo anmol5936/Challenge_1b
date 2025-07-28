@@ -1,9 +1,29 @@
 from typing import List, Dict, Any
 import re
+import numpy as np
 from src.models.data_models import PersonaInfo, JobInfo, Section
+
+# Try to import sentence transformers, fall back to basic analysis if not available
+try:
+    from sentence_transformers import SentenceTransformer
+    SENTENCE_TRANSFORMERS_AVAILABLE = True
+except (ImportError, ValueError) as e:
+    SENTENCE_TRANSFORMERS_AVAILABLE = False
+    print(f"Warning: sentence-transformers not available ({e}), using basic keyword analysis")
 
 class PersonaAnalyzer:
     def __init__(self):
+        # Initialize sentence transformer model if available
+        self.model = None
+        if SENTENCE_TRANSFORMERS_AVAILABLE:
+            try:
+                # Use a lightweight model that fits within 1GB constraint
+                self.model = SentenceTransformer('all-MiniLM-L6-v2')
+                print("Loaded sentence transformer model: all-MiniLM-L6-v2")
+            except Exception as e:
+                print(f"Failed to load sentence transformer: {e}")
+                self.model = None
+        
         # Domain-specific keyword weights
         self.domain_keywords = {
             'travel': {
@@ -36,6 +56,12 @@ class PersonaAnalyzer:
         content_lower = content.lower()
         role_lower = persona.role.lower()
         
+        # Use semantic similarity if available
+        if self.model is not None:
+            semantic_score = self._calculate_semantic_similarity(content, persona.role)
+        else:
+            semantic_score = 0.0
+        
         # Determine primary domain from persona role
         primary_domain = self._identify_primary_domain(role_lower)
         
@@ -48,12 +74,20 @@ class PersonaAnalyzer:
         # Calculate expertise area relevance
         expertise_score = self._calculate_expertise_relevance(content_lower, persona.expertise_areas)
         
-        # Combine scores with weights
-        total_score = (
-            domain_score * 0.5 +
-            role_score * 0.3 +
-            expertise_score * 0.2
-        )
+        # Combine scores with weights (prioritize semantic similarity if available)
+        if self.model is not None:
+            total_score = (
+                semantic_score * 0.4 +
+                domain_score * 0.3 +
+                role_score * 0.2 +
+                expertise_score * 0.1
+            )
+        else:
+            total_score = (
+                domain_score * 0.5 +
+                role_score * 0.3 +
+                expertise_score * 0.2
+            )
         
         return min(1.0, total_score)
     
@@ -62,14 +96,27 @@ class PersonaAnalyzer:
         content_lower = content.lower()
         task_lower = job.task.lower()
         
+        # Use semantic similarity if available
+        if self.model is not None:
+            semantic_score = self._calculate_semantic_similarity(content, job.task)
+        else:
+            semantic_score = 0.0
+        
         # Calculate task keyword relevance
         task_score = self._calculate_task_relevance(content_lower, task_lower)
         
         # Calculate requirements relevance
         requirements_score = self._calculate_requirements_relevance(content_lower, job.requirements)
         
-        # Combine scores
-        total_score = (task_score * 0.7 + requirements_score * 0.3)
+        # Combine scores (prioritize semantic similarity if available)
+        if self.model is not None:
+            total_score = (
+                semantic_score * 0.5 +
+                task_score * 0.3 +
+                requirements_score * 0.2
+            )
+        else:
+            total_score = (task_score * 0.7 + requirements_score * 0.3)
         
         return min(1.0, total_score)
     
@@ -214,3 +261,48 @@ class PersonaAnalyzer:
         keywords = [word for word in words if word not in stop_words]
         
         return keywords[:10]  # Limit to top 10 keywords
+    
+    def _calculate_semantic_similarity(self, content: str, reference_text: str) -> float:
+        """Calculate semantic similarity using sentence transformers"""
+        if self.model is None:
+            return 0.0
+        
+        try:
+            # Split content into sentences for better analysis
+            content_sentences = [s.strip() for s in content.split('.') if len(s.strip()) > 20]
+            
+            if not content_sentences:
+                return 0.0
+            
+            # Limit to top 5 sentences to avoid performance issues
+            content_sentences = content_sentences[:5]
+            
+            # Encode reference text and content sentences
+            reference_embedding = self.model.encode([reference_text])
+            content_embeddings = self.model.encode(content_sentences)
+            
+            # Calculate cosine similarities
+            similarities = []
+            for content_embedding in content_embeddings:
+                # Reshape for cosine similarity calculation
+                ref_emb = reference_embedding[0].reshape(1, -1)
+                cont_emb = content_embedding.reshape(1, -1)
+                
+                # Calculate cosine similarity
+                dot_product = np.dot(ref_emb, cont_emb.T)[0][0]
+                norm_ref = np.linalg.norm(ref_emb)
+                norm_cont = np.linalg.norm(cont_emb)
+                
+                if norm_ref > 0 and norm_cont > 0:
+                    similarity = dot_product / (norm_ref * norm_cont)
+                    similarities.append(similarity)
+            
+            if similarities:
+                # Return the maximum similarity score
+                return max(similarities)
+            else:
+                return 0.0
+                
+        except Exception as e:
+            print(f"Error calculating semantic similarity: {e}")
+            return 0.0

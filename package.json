@@ -1,36 +1,18 @@
 {
   "name": "pdf-analysis-system",
   "version": "1.0.0",
-  "description": "Multi-Collection PDF Analysis System",
-  "main": "src/App.tsx",
+  "description": "Multi-Collection PDF Analysis System - Command Line Interface",
+  "main": "src/main.py",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "analyze": "python run_analysis.py"
+    "analyze": "python run_analysis.py",
+    "challenge": "python run_challenge.py",
+    "compliance": "python analyze_compliance.py",
+    "verify": "python verify_exact_structure.py",
+    "docker-validate": "python validate_docker.py",
+    "docker-setup": "python docker_setup.py",
+    "test": "python test_sample.py"
   },
-  "dependencies": {
-    "lucide-react": "^0.344.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "axios": "^1.6.0"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.9.1",
-    "@types/react": "^18.3.5",
-    "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react": "^4.3.1",
-    "autoprefixer": "^10.4.18",
-    "eslint": "^9.9.1",
-    "eslint-plugin-react-hooks": "^5.1.0-rc.0",
-    "eslint-plugin-react-refresh": "^0.4.11",
-    "globals": "^15.9.0",
-    "postcss": "^8.4.35",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5.5.3",
-    "typescript-eslint": "^8.3.0",
-    "vite": "^5.4.2",
-    "@types/node": "^20.0.0"
-  }
+  "keywords": ["pdf", "analysis", "nlp", "document-processing", "challenge"],
+  "author": "PDF Analysis System",
+  "license": "MIT"
 }

@@ -1,5 +1,5 @@
 import re
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from src.models.data_models import Section, DocumentInfo, PageContent
 
 class ContentSegmenter:
@@ -52,8 +52,14 @@ class ContentSegmenter:
             else:
                 if current_section:
                     current_content.append(line)
-                    # Update page number based on content
-                    current_page = self._estimate_page_number(document, len('\n'.join(current_content)))
+                else:
+                    # If no section started yet, start with first substantial line
+                    if len(line) > 10:
+                        current_section = line[:50] + "..." if len(line) > 50 else line
+                        current_content = [line]
+                
+                # Update page number based on content
+                current_page = self._estimate_page_number(document, len('\n'.join(current_content)))
         
         # Add final section
         if current_section and current_content:
@@ -141,6 +147,15 @@ class ContentSegmenter:
             return line.strip()
         
         if len(line) < 80 and ':' in line and not line.endswith('.'):
+            return line.strip()
+        
+        # Check for standalone lines that look like headers (short, title case)
+        words = line.split()
+        if (len(words) <= 6 and len(line) <= 80 and 
+            all(word[0].isupper() or word.lower() in ['and', 'or', 'the', 'of', 'for', 'in', 'to'] 
+                for word in words if word) and
+            not line.endswith('.') and not line.endswith(',') and
+            len(line) > 5):
             return line.strip()
         
         return None
