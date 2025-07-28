@@ -4,13 +4,11 @@
   "description": "Multi-Collection PDF Analysis System - Command Line Interface",
   "main": "src/main.py",
   "scripts": {
-    "analyze": "python run_analysis.py",
     "challenge": "python run_challenge.py",
     "compliance": "python analyze_compliance.py",
     "verify": "python verify_exact_structure.py",
     "docker-validate": "python validate_docker.py",
-    "docker-setup": "python docker_setup.py",
-    "test": "python test_sample.py"
+    "docker-setup": "python docker_setup.py"
   },
   "keywords": ["pdf", "analysis", "nlp", "document-processing", "challenge"],
   "author": "PDF Analysis System",

@@ -145,7 +145,7 @@ def analyze_all_collections():
                 total_score += score
                 max_total_score += max_score
                 
-                print(f"\n📊 Collection {i} Analysis:")
+                print(f"\nCollection {i} Analysis:")
                 print(f"   Overall Score: {score}/{max_score} ({percentage:.1f}%)")
                 
                 # Show detailed breakdown
@@ -169,7 +169,7 @@ def analyze_all_collections():
     if max_total_score > 0:
         overall_percentage = (total_score / max_total_score) * 100
         print(f"\n{'='*60}")
-        print(f"📈 OVERALL COMPLIANCE SUMMARY")
+        print(f"OVERALL COMPLIANCE SUMMARY")
         print(f"{'='*60}")
         print(f"Total Score: {total_score}/{max_total_score} ({overall_percentage:.1f}%)")
         print(f"Collections Analyzed: {len(collections)}")
@@ -184,7 +184,7 @@ def analyze_all_collections():
             print("POOR: Major structural issues need fixing.")
         
         # Recommendations
-        print(f"\n💡 RECOMMENDATIONS:")
+        print(f"\nRECOMMENDATIONS:")
         
         # Analyze common issues
         metadata_issues = []

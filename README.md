@@ -45,9 +45,9 @@ python run_challenge.py
 python analyze_compliance.py
 ```
 
-4. Test individual components:
+4. Verify exact structure match:
 ```bash
-python test_sample.py
+python verify_exact_structure.py
 ```
 
 ### Using Docker

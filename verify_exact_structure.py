@@ -59,7 +59,7 @@ def verify_exact_structure():
         expected_file = os.path.join(collection_path, "challenge1b_output.json")
         actual_file = os.path.join(collection_path, "my_challenge1b_output.json")
         
-        print(f"\n📊 Collection {i} Structure Verification:")
+        print(f"\nCollection {i} Structure Verification:")
         
         if os.path.exists(expected_file) and os.path.exists(actual_file):
             expected = load_json_file(expected_file)
@@ -70,7 +70,7 @@ def verify_exact_structure():
                 matches = compare_structure(expected, actual)
                 
                 if matches:
-                    print("✅ Structure matches perfectly!")
+                    print("SUCCESS: Structure matches perfectly!")
                     
                     # Additional checks
                     print("   ✓ metadata structure matches")

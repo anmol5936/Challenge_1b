@@ -55,14 +55,13 @@ output/
 *.log
 analysis_output.json
 
-# Test files (keep only essential ones)
-barcelona_guide.pdf
-barcelona_guide.txt
-barcelona_restaurants.pdf
-hr_forms_guide.pdf
-hr_input.json
-multi_doc_input.json
-sample_input.json
+# Test files and temporary files
+*.pdf
+*.txt
+*_input.json
+*_output.json
+test_*.py
+sample_*.py
 
 # Documentation (except essential)
 FINAL_SUMMARY.md

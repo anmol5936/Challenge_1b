@@ -30,7 +30,8 @@ COPY --chown=app:app Challenge_1b/ ./Challenge_1b/
 COPY --chown=app:app run_challenge.py .
 COPY --chown=app:app analyze_compliance.py .
 COPY --chown=app:app verify_exact_structure.py .
-COPY --chown=app:app test_sample.py .
+COPY --chown=app:app validate_docker.py .
+COPY --chown=app:app docker_setup.py .
 COPY --chown=app:app approach_explanation.md .
 COPY --chown=app:app README.md .
 

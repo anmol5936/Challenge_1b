@@ -151,7 +151,7 @@ def main():
     dockerfile_results = check_dockerfile_syntax()
     
     if dockerfile_results['valid']:
-        print("✅ Dockerfile syntax is valid")
+        print("SUCCESS: Dockerfile syntax is valid")
     else:
         print("❌ Dockerfile has issues")
     
@@ -169,7 +169,7 @@ def main():
     files_results = check_required_files()
     
     if files_results['valid']:
-        print("✅ All required files are present")
+        print("SUCCESS: All required files are present")
     else:
         print("❌ Some required files are missing")
     
@@ -178,22 +178,22 @@ def main():
         print(f"   ❌ Missing: {missing}")
     
     # Check .dockerignore
-    print("\n🚫 .dockerignore Analysis:")
+    print("\n.dockerignore Analysis:")
     ignore_results = check_dockerignore()
     
     if ignore_results['exists']:
-        print("✅ .dockerignore file exists")
+        print("SUCCESS: .dockerignore file exists")
         for rec in ignore_results['recommendations']:
             print(f"   {rec}")
     else:
         print("⚠️  .dockerignore file not found")
     
     # Check docker-compose.yml
-    print("\n🐙 Docker Compose Analysis:")
+    print("\nDocker Compose Analysis:")
     compose_results = validate_docker_compose()
     
     if compose_results['exists']:
-        print("✅ docker-compose.yml exists")
+        print("SUCCESS: docker-compose.yml exists")
         print(f"   Services: {', '.join(compose_results['services'])}")
         for issue in compose_results['issues']:
             print(f"   {issue}")
@@ -201,7 +201,7 @@ def main():
         print("⚠️  docker-compose.yml not found")
     
     # Overall assessment
-    print("\n🎯 Overall Assessment:")
+    print("\nOverall Assessment:")
     
     overall_valid = (
         dockerfile_results['valid'] and 
@@ -210,8 +210,8 @@ def main():
     )
     
     if overall_valid:
-        print("✅ Docker configuration is ready for use!")
-        print("\n🚀 Next steps:")
+        print("SUCCESS: Docker configuration is ready for use!")
+        print("\nNext steps:")
         print("   1. Start Docker Desktop")
         print("   2. Run: python docker_setup.py build")
         print("   3. Run: docker run --rm pdf-analysis-system")
